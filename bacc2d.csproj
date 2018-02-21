@@ -285,32 +285,36 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\client.cs" />
-    <Compile Include="Assets\Scripts\Card\Card.cs" />
-    <Compile Include="Assets\Scripts\Card\CardRules.cs" />
-    <Compile Include="Assets\Scripts\Card\CardSprite.cs" />
-    <Compile Include="Assets\Scripts\Card\Deck.cs" />
-    <Compile Include="Assets\Scripts\Card\HandCards.cs" />
-    <Compile Include="Assets\Scripts\Chip.cs" />
     <Compile Include="Assets\Scripts\CreateGo.cs" />
-    <Compile Include="Assets\Scripts\Desk.cs" />
-    <Compile Include="Assets\Scripts\FileUtils.cs" />
-    <Compile Include="Assets\Scripts\FSM\TestFSM.cs" />
     <Compile Include="Assets\Scripts\FSM\IState.cs" />
     <Compile Include="Assets\Scripts\FSM\IStateMachine.cs" />
     <Compile Include="Assets\Scripts\FSM\ITransition.cs" />
+    <Compile Include="Assets\Scripts\FSM\TestFSM.cs" />
     <Compile Include="Assets\Scripts\FSM\WsState.cs" />
     <Compile Include="Assets\Scripts\FSM\WsStateMachine.cs" />
     <Compile Include="Assets\Scripts\FSM\WsTransition.cs" />
-    <Compile Include="Assets\Scripts\Game.cs" />
+    <Compile Include="Assets\Scripts\Game\AccountState.cs" />
+    <Compile Include="Assets\Scripts\Game\BettingState.cs" />
+    <Compile Include="Assets\Scripts\Game\FileUtils.cs" />
+    <Compile Include="Assets\Scripts\Game\Game.cs" />
     <Compile Include="Assets\Scripts\GameController.cs" />
-    <Compile Include="Assets\Scripts\MoveScript.cs" />
-    <Compile Include="Assets\Scripts\PlayCard.cs" />
-    <Compile Include="Assets\Scripts\Player.cs" />
+    <Compile Include="Assets\Scripts\Game\PrepareState.cs" />
+    <Compile Include="Assets\Scripts\Game\Shuffling.cs" />
+    <Compile Include="Assets\Scripts\Game\ThreeSecState.cs" />
+    <Compile Include="Assets\Scripts\Model\Card\Card.cs" />
+    <Compile Include="Assets\Scripts\Model\Card\CardRules.cs" />
+    <Compile Include="Assets\Scripts\Model\Card\CardSprite.cs" />
+    <Compile Include="Assets\Scripts\Model\Card\Deck.cs" />
+    <Compile Include="Assets\Scripts\Model\Card\HandCards.cs" />
+    <Compile Include="Assets\Scripts\Model\Chip.cs" />
+    <Compile Include="Assets\Scripts\Model\Desk.cs" />
+    <Compile Include="Assets\Scripts\Model\PlayCard.cs" />
+    <Compile Include="Assets\Scripts\Model\Player.cs" />
+    <Compile Include="Assets\Scripts\Model\Round.cs" />
+    <Compile Include="Assets\Scripts\Model\Session.cs" />
+    <Compile Include="Assets\Scripts\Model\Setting.cs" />
+    <Compile Include="Assets\Scripts\Model\Type.cs" />
     <Compile Include="Assets\Scripts\PlayerScript.cs" />
-    <Compile Include="Assets\Scripts\Round.cs" />
-    <Compile Include="Assets\Scripts\Session.cs" />
-    <Compile Include="Assets\Scripts\Setting.cs" />
-    <Compile Include="Assets\Scripts\Type.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\keymap.txt" />
