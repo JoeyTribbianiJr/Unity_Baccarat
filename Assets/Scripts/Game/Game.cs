@@ -17,23 +17,6 @@ namespace WsBaccarat
 	}
 	public class Game : MonoBehaviour
 	{
-		#region 状态机
-		private WsStateMachine _fsm;
-
-		private WsState _preparingState;  //点击开始按钮后
-		private WsState _shufflingState;    //洗牌中
-		private WsState _bettingState;  //押注中
-		private WsState _accountingState;  //结算中
-
-		private WsTransition _prepareShuffle;
-		private WsTransition _shuffleBet;
-		private WsTransition _betAccount;
-		private WsTransition _accountBet;	//结算后直接开下一局
-		private WsTransition _accountShuffle;	//结算后重新洗牌,洗牌前先对单
-
-		private bool _isLoaded;
-		private float _shufTime;
-		#endregion
 
 		#region 游戏对象
 		public GameObject chipPrefab;
@@ -54,19 +37,26 @@ namespace WsBaccarat
 
 		private void InitFsm()
 		{
-			#region 资源加载
+			#region 资源初始化
 			_preparingState = new WsState("preparing");
-			_preparingState.OnEnter += LoadResource;
-			_prepareShuffle = new WsTransition("preShuffle", _preparingState, _shufflingState);
-
-			_prepareShuffle.OnCheck += ResLoaded;
-			_preparingState.AddTransition(_prepareShuffle);
+			//_preparingState.OnUpdate += InitGame;
 			#endregion
 
 			#region 洗牌中
 			_shufflingState = new WsState("shuffling");
 			_shufflingState.OnEnter += GetShufTime;
 			_shufflingState.OnUpdate += Shuffle;
+			_shufflingState.OnExit += (IState state) => { _isShuffled = false; };
+
+			_bettingState = new WsState("betting");
+			_bettingState.OnEnter += Start1Round;
+			_bettingState.OnUpdate += Bet;
+			_bettingState.OnExit += RoundOrSessionOver;
+
+			_prepareShuffle = new WsTransition("preShuffle", _preparingState, _shufflingState);
+			_prepareShuffle.OnTransition += InitGame;
+			_prepareShuffle.OnCheck += GameInited;
+			_preparingState.AddTransition(_prepareShuffle);
 
 			_shuffleBet = new WsTransition("shuffleBet", _shufflingState, _bettingState);
 			_shuffleBet.OnCheck += Shuffled;
@@ -75,102 +65,144 @@ namespace WsBaccarat
 
 
 			#region 开始押注
-			_bettingState = new WsState("betting");
-			_bettingState.OnEnter += GetBetTime;
-			_bettingState.OnUpdate += Bet;
 
-			_betAccount = new WsTransition("betAccount", _bettingState, _accountingState);
-			_betAccount.OnCheck += Betted;
-			_bettingState.AddTransition(_betAccount);
+			//开下一局
+			_betNextBet = new WsTransition("betNextBet", _bettingState, _bettingState);
+			_betNextBet.OnCheck += CanGoNextBet;
+			//_betNextBet.OnTransition += DealCard;	//开牌动画，结算筹码
+			_bettingState.AddTransition(_betNextBet);
+
+			//本场结束，验单，重新洗牌
+			_betShuffle = new WsTransition("betShuffle", _bettingState, _shufflingState);
+			_betShuffle.OnCheck += SessionOver;
+			_betShuffle.OnTransition += ExamineWaybill;
+			_bettingState.AddTransition(_betShuffle);
 			#endregion
 
+			#region 押注结束后亮牌结算
+			//_accountingState = new WsState("accounting");
+			//_accountingState.OnEnter += GetAccountTime;
+			//_accountingState.OnUpdate += Account;
+			//_accountingState.OnExit += (IState s) => { _isAccounted = false; };
 
-			#region 一局结束后结算
-			_accountingState = new WsState("accounting");
-			_accountingState.OnEnter += GetAccountTime;
-			_accountingState.OnUpdate += Account;
+			////直接开下局押注
+			//_accountBet = new WsTransition("accountBet", _accountingState, _bettingState);
+			//_accountBet.OnCheck += RoundAccounted;
+			//_accountingState.AddTransition(_accountBet);
 
-			//直接开下局押注
-			_accountBet = new WsTransition("accountBet", _accountingState, _bettingState);
-			_accountBet.OnCheck += RoundAccounted;
-			_accountingState.AddTransition(_accountBet);
-
-			//每场最后局结束，要重新洗牌
-			_accountShuffle = new WsTransition("accountShuffle", _accountingState, _shufflingState);
-			_accountShuffle.OnCheck += SessionAccounted;
-			_accountingState.AddTransition(_accountShuffle);
+			////每场最后局结束，要重新洗牌
+			//_accountShuffle = new WsTransition("accountShuffle", _accountingState, _shufflingState);
+			//_accountShuffle.OnCheck += SessionAccounted;
+			//_accountingState.AddTransition(_accountShuffle);
 			#endregion
-
 
 			_fsm = new WsStateMachine("baccarat", _preparingState);
 			_fsm.AddState(_preparingState);
 			_fsm.AddState(_shufflingState);
 			_fsm.AddState(_bettingState);
-			_fsm.AddState(_accountingState);
-
+			//_fsm.AddState(_accountingState);
+			print("init fsm over");
 		}
 
-		private bool RoundAccounted()
+		private bool ExamineWaybill()
 		{
-			throw new NotImplementedException();
+			SetClockText("检查路单中");
+			//new WaitForSeconds(3);
+			return true;
 		}
 
-		private bool SessionAccounted()
+		bool InitGame()
 		{
-			throw new NotImplementedException();
+			print("init game start");
+			//InitXY();
+			//InitKeymap();
+			//FullScreen();
+			//_isLoaded = true;
+			print("init game over");
+			return true;
 		}
-
-		private void Account(float f)
+		private bool GameInited()
 		{
-			throw new NotImplementedException();
-		}
-
-		private void GetAccountTime(IState state)
-		{
-			throw new NotImplementedException();
-		}
-
-		private bool Betted()
-		{
-			throw new NotImplementedException();
-		}
-
-		private void Bet(float f)
-		{
-			throw new NotImplementedException();
-		}
-
-		private void GetBetTime(IState state)
-		{
-			throw new NotImplementedException();
-		}
-
-		private bool Shuffled()
-		{
-			throw new NotImplementedException();
-		}
-
-		private void Shuffle(float f)
-		{
-			throw new NotImplementedException();
+			return _isLoaded = true;
 		}
 
 		private void GetShufTime(IState state)
 		{
-			throw new NotImplementedException();
+			//_shufTime = Setting.Instance.GetIntSetting("")
+			print("start shuffle");
+			_shufTime = 5;
 		}
-
-		private bool ResLoaded()
+		private void Shuffle(float f)
 		{
-			return _isLoaded;
+			var timer = _shufflingState.Timer;
+			if (timer > _shufTime)
+			{
+				_isShuffled = true;
+				return;
+			}
+			SetCountDownWithFloat(timer, _shufTime);
 		}
-
-		private void LoadResource(IState state)
+		private bool Shuffled()
 		{
-			throw new NotImplementedException();
+			return _isShuffled;
 		}
 
-		//private Transform position;
+		private void Start1Round(IState state)
+		{
+			print("cur round : " + _curRoundIndex);
+			print("开始押注");
+			_roundNumPerSession = Setting.Instance.GetIntSetting("round_num_per_session");
+			_roundNumPerSession = 3;
+			_betTime = Setting.Instance.GetIntSetting("bet_tm");
+			_betTime = 3;
+			_is3SecOn = Setting.Instance.GetStrSetting("open_3_sec") == "3秒功能开" ? true : false;
+			_curRoundIndex++;
+		}
+		private void Bet(float f)
+		{
+			if(_curRoundIndex > _roundNumPerSession)
+			{
+				_sessionOver = true;
+				return;
+			}
+			_betTimer = _bettingState.Timer;
+
+			if(_betTimer > _betTime)
+			{
+				DealCard();
+				_betRoundOver = true;
+				return;
+			}
+			SetCountDownWithFloat(_betTimer, _betTime);
+		}
+		private bool CanGoNextBet()
+		{
+			return _betRoundOver && !_sessionOver;
+		}
+		private bool DealCard()
+		{
+			SetClockText("正在开牌");
+			return true;
+		}
+		private bool SessionOver()
+		{
+			return _sessionOver;
+		}
+		private void RoundOrSessionOver(IState state)
+		{
+			if (_sessionOver)
+			{
+				_curRoundIndex = 1;
+				_sessionOver = false;
+			}
+			_betRoundOver = false;
+		}
+
+
+		#region 游戏初始化
+		/// <summary>
+		/// 初始化筹码坐标，适应缩放
+		/// </summary>
 		void InitXY()
 		{
 			desk = GameObject.Find("Desk");
@@ -254,37 +286,40 @@ namespace WsBaccarat
 			}
 
 		}
-		private void Start()
+		#endregion
+
+		void Start()
 		{
-			//initXY();
-			InitKeymap();
-			FullScreen();
-			CountDown(120);
+			//InitGame(null);
+			//CountDown(120);
 		}
 		void Update()
 		{
+			//print("update");
+			_fsm.UpdateCallback(Time.deltaTime);
 		}
 		private void OnGUI()
 		{
-			if (Input.anyKeyDown)
+			if (_enableBet)
 			{
-
-				Event e = Event.current;
-				if (e.isKey)
+				if (Input.anyKeyDown)
 				{
-					int code = (int)e.keyCode;
-					HandleKey(code);
+					Event e = Event.current;
+					if (e.isKey)
+					{
+						int code = (int)e.keyCode;
+						HandleKey(code);
+					}
 				}
+				//if (GUI.Button(new Rect(10, 50, 100, 30), "client"))
+				//{
+				//	ClientConnectServerAction();
+				//}
+				//if (GUI.Button(new Rect(10, 50, 100, 30), "add player"))
+				//{
+				//	ClientScene.AddPlayer(31);
+				//}
 			}
-			if (GUI.Button(new Rect(10, 50, 100, 30), "client"))
-			{
-				ClientConnectServerAction();
-			}
-			if (GUI.Button(new Rect(10, 50, 100, 30), "add player"))
-			{
-				ClientScene.AddPlayer(31);
-			}
-
 		}
 
 		void HandleKey(int keycode)
@@ -314,28 +349,19 @@ namespace WsBaccarat
 			var tt = canvas.transform.Find("Text").GetComponent<Text>();
 			tt.text = num.ToString();
 			chip.SetActive(true);
-
 		}
 
 		#region 倒计时 .Done
-		void CountDown(int secounds)
+		void SetClockText(string time)
 		{
-			StartCoroutine(Timer(secounds));
-		}
-		IEnumerator Timer(int time)
-		{
-			while (time > 0)
-			{
-				yield return new WaitForSeconds(1);
-				SetCountDownText(time);
-				time--;
-			}
-		}
-		void SetCountDownText(int time)
-		{
-			var canvas = GameObject.Find("Cvs_clock");
+			var canvas = GameObject.Find("ClockCanvas");
 			var tt = canvas.transform.Find("Clock").GetComponent<Text>();
 			tt.text = time.ToString();
+		}
+		void SetCountDownWithFloat(float cur_timer,int seconds)
+		{
+				var count_down = seconds - (int)cur_timer;
+				SetClockText(count_down.ToString());
 		}
 		#endregion
 
@@ -387,6 +413,37 @@ namespace WsBaccarat
 			//服务器在接收这个请求之后会自动调用 添加游戏玩家的回调方法
 			ClientScene.AddPlayer(31);
 		}
+		#endregion
+
+		#region 状态机
+		private WsStateMachine _fsm;
+
+		private WsState _preparingState;  //点击开始按钮后
+		private WsState _shufflingState;    //洗牌中
+		private WsState _bettingState;  //押注中
+		private WsState _accountingState;  //结算中
+
+		private WsTransition _prepareShuffle;
+		private WsTransition _shuffleBet;
+		private WsTransition _betNextBet;
+		private WsTransition _betShuffle;
+		private WsTransition _accountBet;   //结算后直接开下一局
+		private WsTransition _accountShuffle;   //结算后重新洗牌,洗牌前先对单
+
+		private bool _isLoaded = false;
+		private int _shufTime;
+		private bool _isShuffled =false;
+		private int _betTime;
+		private bool _is3SecOn =false;
+		//private bool _betFinished;
+		private bool _enableBet =false;
+		private bool _isAccounted = false;
+		private float _betTimer;
+		private bool _betRoundOver =false;
+		private int _curRoundIndex = 1;
+		private bool _sessionOver =false;
+		private int _roundNumPerSession;
+		private bool _isLoading;
 		#endregion
 	}
 }

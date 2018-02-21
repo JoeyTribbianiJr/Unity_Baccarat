@@ -327,6 +327,15 @@ Prefab:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1716910020616950, guid: 8a7d1c6f4baf3ae45b4d9a40d959d5f1, type: 2}
+      propertyPath: m_Name
+      value: ClockCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 212811223111053098, guid: 8a7d1c6f4baf3ae45b4d9a40d959d5f1,
+        type: 2}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 8a7d1c6f4baf3ae45b4d9a40d959d5f1, type: 2}
   m_IsPrefabParent: 0

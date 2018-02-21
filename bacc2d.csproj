@@ -308,7 +308,6 @@
     <Compile Include="Assets\Scripts\Model\Card\HandCards.cs" />
     <Compile Include="Assets\Scripts\Model\Chip.cs" />
     <Compile Include="Assets\Scripts\Model\Desk.cs" />
-    <Compile Include="Assets\Scripts\Model\PlayCard.cs" />
     <Compile Include="Assets\Scripts\Model\Player.cs" />
     <Compile Include="Assets\Scripts\Model\Round.cs" />
     <Compile Include="Assets\Scripts\Model\Session.cs" />

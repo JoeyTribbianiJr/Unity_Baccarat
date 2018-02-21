@@ -103,7 +103,7 @@ namespace WsUtils
 			{
 				sr = File.OpenText(_syspath + "//" + name);
 			}
-			catch (Exception e)
+			catch (Exception )
 			{
 				//路径与名称未找到文件则直接返回空
 				return null;
