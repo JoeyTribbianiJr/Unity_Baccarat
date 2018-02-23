@@ -34,7 +34,10 @@ namespace WsBaccarat
 		/// </summary>
 		public Weight GetCardWeight
 		{
-			get { return weight; }
+			get
+			{
+				return weight;
+			}
 		}
 
 		/// <summary>

@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
     <UnityVersion>2017.3.1f1</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -284,6 +282,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="bacc2d.Plugins.csproj">
+      <Project>{6B088628-C375-23A9-D7A7-0ADED1E2844A}</Project>
+      <Name>bacc2d.Plugins</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="Assets\client.cs" />
     <Compile Include="Assets\Scripts\CreateGo.cs" />
     <Compile Include="Assets\Scripts\FSM\IState.cs" />
@@ -293,14 +297,11 @@
     <Compile Include="Assets\Scripts\FSM\WsState.cs" />
     <Compile Include="Assets\Scripts\FSM\WsStateMachine.cs" />
     <Compile Include="Assets\Scripts\FSM\WsTransition.cs" />
-    <Compile Include="Assets\Scripts\Game\AccountState.cs" />
-    <Compile Include="Assets\Scripts\Game\BettingState.cs" />
     <Compile Include="Assets\Scripts\Game\FileUtils.cs" />
     <Compile Include="Assets\Scripts\Game\Game.cs" />
+    <Compile Include="Assets\Scripts\Game\ManageUI.cs" />
+    <Compile Include="Assets\Scripts\Game\PPTextureManage.cs" />
     <Compile Include="Assets\Scripts\GameController.cs" />
-    <Compile Include="Assets\Scripts\Game\PrepareState.cs" />
-    <Compile Include="Assets\Scripts\Game\Shuffling.cs" />
-    <Compile Include="Assets\Scripts\Game\ThreeSecState.cs" />
     <Compile Include="Assets\Scripts\Model\Card\Card.cs" />
     <Compile Include="Assets\Scripts\Model\Card\CardRules.cs" />
     <Compile Include="Assets\Scripts\Model\Card\CardSprite.cs" />
@@ -314,8 +315,10 @@
     <Compile Include="Assets\Scripts\Model\Setting.cs" />
     <Compile Include="Assets\Scripts\Model\Type.cs" />
     <Compile Include="Assets\Scripts\PlayerScript.cs" />
+    <Compile Include="Assets\Scripts\SearchUI.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Plugins\Pixelplacement\iTween\ReadMe!\ReadMe!.txt" />
     <None Include="Assets\keymap.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

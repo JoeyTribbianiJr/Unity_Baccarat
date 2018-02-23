@@ -7,15 +7,6 @@ namespace WsBaccarat
 {
 	public class Desk
 	{
-		private const float BANKER_ODDS = 0.95f;
-		private const float PLAYER_ODDS = 1;
-		private const float TIE_ODDS = 8;
-		private float[] odds_map = new float[3] { BANKER_ODDS, TIE_ODDS, PLAYER_ODDS };
-
-		private List<Player> players;
-		private Dictionary<BetSide, int> desk_amount;
-
-		private static Desk instance;
 		public static Desk Instance
 		{
 			get
@@ -101,9 +92,24 @@ namespace WsBaccarat
 			var sum = 0;
 			foreach (var card in hand_cards)
 			{
-				sum += (int)card.GetCardWeight;
+				var weight = GetWeightValue(card);
+				sum += weight;
 			}
 			return sum;
+		}
+		private int GetWeightValue(Card card)
+		{
+			var weight = (int)card.GetCardWeight;
+			if (weight > 9)
+			{
+				weight = 0;
+			}
+			return weight;
+		}
+
+		public List<Player> Players
+		{
+			get { return players; }
 		}
 
 		public int CalcPlayerEarning(BetSide winner, int[] p_bets)
@@ -142,14 +148,10 @@ namespace WsBaccarat
 		{
 			List<Card>[] hand_card = new List<Card>[2];
 
-			var player_card = new List<Card>
-		{
-			Deck.Instance.Deal()
-		};
-			var banker_card = new List<Card>
-		{
-			Deck.Instance.Deal()
-		};
+			var player_card = new List<Card>();
+			player_card.Add(Deck.Instance.Deal());
+			var banker_card = new List<Card>();
+			banker_card.Add(Deck.Instance.Deal());
 
 			player_card.Add(Deck.Instance.Deal());
 			banker_card.Add(Deck.Instance.Deal());
@@ -237,5 +239,15 @@ namespace WsBaccarat
 				return b_amount > p_amount ? BetSide.banker : BetSide.player;
 			}
 		}
+
+		private const float BANKER_ODDS = 0.95f;
+		private const float PLAYER_ODDS = 1;
+		private const float TIE_ODDS = 8;
+		private float[] odds_map = new float[3] { BANKER_ODDS, TIE_ODDS, PLAYER_ODDS };
+
+		private List<Player> players;
+		private Dictionary<BetSide, int> desk_amount;
+
+		private static Desk instance;
 	}
 }

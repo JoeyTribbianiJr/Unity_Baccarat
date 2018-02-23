@@ -20,6 +20,7 @@ namespace WsBaccarat
 
 		#region 游戏对象
 		public GameObject chipPrefab;
+		public GameObject cardPrefab;
 		public List<List<GameObject>> chips;
 		public List<List<int>> keymap = new List<List<int>>();
 		#endregion
@@ -114,10 +115,10 @@ namespace WsBaccarat
 		bool InitGame()
 		{
 			print("init game start");
-			//InitXY();
-			//InitKeymap();
-			//FullScreen();
-			//_isLoaded = true;
+			InitXY();
+			InitKeymap();
+			FullScreen();
+			_isLoaded = true;
 			print("init game over");
 			return true;
 		}
@@ -130,12 +131,13 @@ namespace WsBaccarat
 		{
 			//_shufTime = Setting.Instance.GetIntSetting("")
 			print("start shuffle");
-			_shufTime = 5;
+			_shufTime = 4;
+			_shufTime++;
 		}
 		private void Shuffle(float f)
 		{
 			var timer = _shufflingState.Timer;
-			if (timer > _shufTime)
+			if (timer > _shufTime + 1)
 			{
 				_isShuffled = true;
 				return;
@@ -160,29 +162,136 @@ namespace WsBaccarat
 		}
 		private void Bet(float f)
 		{
-			if(_curRoundIndex > _roundNumPerSession)
+			if (_curRoundIndex > _roundNumPerSession)
 			{
 				_sessionOver = true;
 				return;
 			}
 			_betTimer = _bettingState.Timer;
 
-			if(_betTimer > _betTime)
+			if (_betTimer <= _betTime + 1)
 			{
-				DealCard();
-				_betRoundOver = true;
-				return;
+				SetCountDownWithFloat(_betTimer, _betTime);
 			}
-			SetCountDownWithFloat(_betTimer, _betTime);
+			else
+			{
+				if (_betTimer > _betTime + 8)
+				{
+					_animationing = false;
+					_animationDone = true;
+				}
+				if (_animationing)
+				{
+					return;
+				}
+				else if (_animationDone)
+				{
+					_betRoundOver = true;
+					_animationDone = false;
+					return;
+				}
+				else
+				{
+					DealCard();
+					_animationing = true;
+					_animationDone = false;
+				}
+			}
 		}
 		private bool CanGoNextBet()
 		{
 			return _betRoundOver && !_sessionOver;
 		}
-		private bool DealCard()
+		//private IEnumerable<WaitForSeconds> DealCard()
+		private void DealCard()
 		{
 			SetClockText("正在开牌");
-			return true;
+
+			var singleDouble = Setting.Instance.GetStrSetting("single_double");
+
+
+			//Test
+			singleDouble = "两张牌";
+
+
+			if (singleDouble == "单张牌")
+			{
+				_curHandCards = Desk.Instance.DealSingleCard();
+				OpenSingle();
+			}
+			if (singleDouble == "两张牌")
+			{
+				_curHandCards = Desk.Instance.DealTwoCard();
+				OpenTwo();
+			}
+		}
+		private void OpenSingle()
+		{
+			var playerCard = _curHandCards[1][0];
+			var v2 = _cardPosition[3].transform.position;
+			OpenCard(playerCard, v2,0);
+
+			var bankerCard = _curHandCards[0][0];
+			var v1 = _cardPosition[0].transform.position;
+			OpenCard(bankerCard, v1,1);
+		}
+		private void OpenTwo()
+		{
+			var playerCard1 = _curHandCards[0][0];
+			var v2 = _cardPosition[3].transform.position;
+			OpenCard(playerCard1, v2,0);
+
+			var bankerCard1 = _curHandCards[1][0];
+			var v1 = _cardPosition[0].transform.position;
+			OpenCard(bankerCard1, v1,1);
+
+			var playerCard2 = _curHandCards[0][1];
+			var v4 = _cardPosition[4].transform.position;
+			OpenCard(playerCard2, v4,2);
+
+			var bankerCard2 = _curHandCards[1][1];
+			var v3 = _cardPosition[1].transform.position;
+			OpenCard(bankerCard2, v3,3);
+
+			if (_curHandCards[1].Count == 3)
+			{
+				var thdCard = _curHandCards[1][2];
+				var bankerCard3 = thdCard;
+				var v5 = _cardPosition[2].transform.position;
+				OpenCard(bankerCard3, v5,4);
+			}
+
+			if (_curHandCards[0].Count == 3)
+			{
+				var fouCard = _curHandCards[0][2];
+				var playerCard3 = fouCard;
+				var v6 = _cardPosition[5].transform.position;
+				OpenCard(playerCard3, v6,5);
+			}
+		}
+		private void OpenCard(Card card, Vector3 v,int cache_i)
+		{
+			var sprite = InitCardSprite(card);
+			//var sp_obj = Instantiate(cardPrefab);
+			var sp_obj = _handCardCache[cache_i];
+			sp_obj.transform.position = _cardPosition[6].transform.position;
+			sp_obj.GetComponent<SpriteRenderer>().sprite = sprite;
+
+			iTween.MoveTo(sp_obj, v, 2f);
+		}
+		private Sprite InitCardSprite(Card card)
+		{
+			var weight = card.GetCardWeight;
+			var suit = card.GetCardSuit;
+			if (suit == Suits.Back)
+			{
+				return PPTextureManage.getInstance().LoadAtlasSprite("card", "back");
+			}
+			else
+			{
+				var index = (int)suit * 13 + (int)weight;
+				return PPTextureManage.getInstance().LoadAtlasSprite("card", index.ToString());
+			}
 		}
 		private bool SessionOver()
 		{
@@ -244,11 +353,44 @@ namespace WsBaccarat
 					GameObject obj = Instantiate(chipPrefab);//, v, new Quaternion(0, 0, 0, 0)) as GameObject;
 					var tr = desk.transform;
 					obj.transform.SetParent(tr);
-					//obj.transform.SetPositionAndRotation(v, new Quaternion());
+
+					obj.transform.SetPositionAndRotation(v, new Quaternion());
 					obj.SetActive(false);
 					objs.Add(obj);
 				}
 				chips.Add(objs);
+			}
+
+			_cardPosition = new List<GameObject>();
+			_handCardCache = new List<GameObject>();
+			for (int i = 0; i < 7; i++)
+			{
+				GameObject obj = Instantiate(cardPrefab);
+				var tr = desk.transform;
+				obj.transform.SetParent(tr);
+
+				var x = -4.5f + i * 0.45f;
+				var y = -3.05f;
+
+				if (i > 2)
+				{
+					x = 4.5f - (i - 3) * 0.45f;
+				}
+				if (i > 5)
+				{
+					x = -0.3f;
+					y = 0.8f;
+				}
+
+				var v = new Vector3(x, y, -1);
+
+				obj.transform.SetPositionAndRotation(v, new Quaternion());
+
+				obj.SetActive(false);
+				_cardPosition.Add(obj);
+
+				var sp_obj = Instantiate(cardPrefab);
+				_handCardCache.Add(sp_obj);
 			}
 
 		}
@@ -358,10 +500,10 @@ namespace WsBaccarat
 			var tt = canvas.transform.Find("Clock").GetComponent<Text>();
 			tt.text = time.ToString();
 		}
-		void SetCountDownWithFloat(float cur_timer,int seconds)
+		void SetCountDownWithFloat(float cur_timer, int seconds)
 		{
-				var count_down = seconds - (int)cur_timer;
-				SetClockText(count_down.ToString());
+			var count_down = seconds - (int)cur_timer;
+			SetClockText(count_down.ToString());
 		}
 		#endregion
 
@@ -432,18 +574,23 @@ namespace WsBaccarat
 
 		private bool _isLoaded = false;
 		private int _shufTime;
-		private bool _isShuffled =false;
+		private bool _isShuffled = false;
 		private int _betTime;
-		private bool _is3SecOn =false;
+		private bool _is3SecOn = false;
 		//private bool _betFinished;
-		private bool _enableBet =false;
+		private bool _enableBet = false;
 		private bool _isAccounted = false;
 		private float _betTimer;
-		private bool _betRoundOver =false;
+		private bool _betRoundOver = false;
 		private int _curRoundIndex = 1;
-		private bool _sessionOver =false;
+		private bool _sessionOver = false;
 		private int _roundNumPerSession;
 		private bool _isLoading;
+		private bool _animationing = false;
+		private bool _animationDone;
+		private List<Card>[] _curHandCards;
+		private List<GameObject> _cardPosition;
+		private List<GameObject> _handCardCache;
 		#endregion
 	}
 }

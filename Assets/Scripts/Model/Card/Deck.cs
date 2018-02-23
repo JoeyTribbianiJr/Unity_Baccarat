@@ -55,6 +55,7 @@ namespace WsBaccarat
 		{
 			deal_native_hand = deal_method;
 			library = new List<Card>();
+			shuf_deck = new List<Card>();
 			CreateDeck(deck_count);
 		}
 		/// <summary>
@@ -69,7 +70,7 @@ namespace WsBaccarat
 				//创建普通扑克
 				for (int color = 0; color < 4; color++)
 				{
-					for (int value = 0; value < 13; value++)
+					for (int value = 1; value < 14; value++)
 					{
 						Weight w = (Weight)value;
 						Suits s = (Suits)color;

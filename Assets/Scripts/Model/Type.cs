@@ -25,7 +25,7 @@ namespace WsBaccarat
 		Diamond,
 		Heart,
 		Spade,
-		None
+		Back
 	}
 
 	/// <summary>
@@ -42,10 +42,10 @@ namespace WsBaccarat
 		Seven,
 		Eight,
 		Nine,
-		Ten = 0,
-		Jack = 0,
-		Queen = 0,
-		King = 0,
+		Ten ,
+		Jack ,
+		Queen,
+		King ,
 
 	}
 

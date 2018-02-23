@@ -9,7 +9,7 @@ namespace WsBaccarat
 	public class CardSprite : MonoBehaviour
 	{
 		private Card card;
-		//public UISprite sprite;
+		public Sprite sprite;
 		private bool isSelected;
 
 		void Start()
